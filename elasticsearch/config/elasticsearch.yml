@@ -10,3 +10,6 @@ network.host: 0.0.0.0
 #
 xpack.license.self_generated.type: basic #trial
 xpack.security.enabled: true
+
+## Watermark free space validation
+cluster.routing.allocation.disk.threshold_enabled: false

@@ -1,4 +1,8 @@
 ﻿using Serilog;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace dotnet;
 
@@ -6,20 +10,36 @@ class Program
 {
     static void Main(string[] args)
     {
-        using var log = new LoggerConfiguration()
-        .MinimumLevel.Verbose()
-        .WriteTo.Console()
-        .WriteTo.Http(requestUri: "http://localhost:8080", queueLimitBytes: null)
-        .CreateLogger();
-        Console.WriteLine("Testing ELK Log");
+        var configuration = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddEnvironmentVariables()
+        .AddCommandLine(args)
+        .AddJsonFile("appsettings.json")
+        .Build();
         
-        for (int i = 0; i < 100; i++)
-        {
-            var randomNumber = new Random().Next(0, 1000);
-            log.Information($"[Dotnet] Logging Random Number: {randomNumber}", randomNumber);
-            Thread.Sleep(1000);
-        }
+        Log.Logger = new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            // .MinimumLevel.Information()
+            .WriteTo.Console()
+            .WriteTo.Http(requestUri: "http://localhost:8080", queueLimitBytes: null)
+            .CreateLogger();
         
-        Console.WriteLine("Goodbye!");
+        var builder = Host.CreateApplicationBuilder(args);
+        builder.Configuration.AddConfiguration(configuration);
+        builder.Logging.ClearProviders();
+        builder.Logging.AddSerilog();
+        ConfigureServices(builder.Services);
+        // .ConfigureAppConfiguration((config) => config.AddConfiguration(configuration))
+        var host = builder.Build();
+
+        var myService = host.Services.GetRequiredService<MyService>();
+        myService.Execute();
+    }
+
+    private static void ConfigureServices(IServiceCollection services)
+    {
+        // services.AddAllElasticApm();
+        services.AddTransient<MyService>();
+        // services.AddLogging(loggerBuilder => loggerBuilder.AddSerilog());
     }
 }

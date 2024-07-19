@@ -28,6 +28,10 @@
         "write",
         "manage"
       ]
+    },
+    {
+      "names": ["syslog-monitor"],
+      "privileges": ["all"]
     }
   ]
 }

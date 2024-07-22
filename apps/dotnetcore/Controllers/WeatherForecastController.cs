@@ -33,8 +33,10 @@ public class WeatherForecastController : ControllerBase
 
     int randomNumber = _random.Next(1, 3);
     this._logger.LogInformation($"Random Number: {randomNumber}", randomNumber);
-    if (randomNumber == 1)
+    if (randomNumber == 1) {
+      _logger.LogError($"Error Test: {_random.Next(1001, 2000)}");
       throw new Exception($"Exception Test: {_random.Next(1001, 2000)}");
+    }
 
     return Enumerable.Range(1, 5).Select(index => new WeatherForecast
     {

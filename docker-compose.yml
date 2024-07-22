@@ -116,6 +116,7 @@ services:
   elastichq:
     image: elastichq/elasticsearch-hq
     hostname: elastichq
+    container_name: elastichq
     environment:
       HQ_DEFAULT_URL: 'http://elastic:${ELASTIC_PASSWORD:-}@elasticsearch:9200'
     ports:
@@ -133,8 +134,10 @@ services:
       context: extensions/fleet/
       args:
         ELASTIC_VERSION: ${ELASTIC_VERSION}
+    user: root
     volumes:
       - fleet-server:/usr/share/elastic-agent/state:Z
+      - ./extensions/fleet/elastic-agent.yml:/usr/share/elastic-agent/elastic-agent.yml
       - type: bind
         source: /var/lib/docker/containers
         target: /var/lib/docker/containers
@@ -187,6 +190,7 @@ services:
     ports:
       - 8200:8200
     hostname: apm-server
+    container_name: apm-server
     # Elastic Agent does not retry failed connections to Kibana upon the initial enrollment phase.
     restart: on-failure
     networks:

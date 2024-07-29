@@ -11,10 +11,15 @@ public class AppBuilder
     
     var logger = new LoggerConfiguration()
         .ReadFrom.Configuration(builder.Configuration)
+        .Enrich.FromLogContext()
+        .Enrich.WithMachineName()
+        .Enrich.WithElasticApmCorrelationInfo()
+        .Enrich.WithEnvironmentName()
+        .Enrich.WithAppVersion()
         .CreateLogger();
 
     builder.Host.UseSerilog(logger);
-    builder.Services.AddAllElasticApm();
+    // builder.Services.AddAllElasticApm();
 
     builder.Services.AddControllers();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

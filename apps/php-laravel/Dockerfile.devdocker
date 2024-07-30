@@ -1,0 +1,17 @@
+FROM php:8.2-buster
+
+RUN apt-get update && \
+    apt-get install -y libgd-dev libsodium-dev libzip-dev openssh-client sqlite3 python && \
+    docker-php-ext-install -j$(nproc) gd zip sodium
+
+RUN curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php && \
+    php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
+
+RUN mkdir -p /usr/local/lib/nodejs
+
+RUN curl -sS https://nodejs.org/dist/v8.10.0/node-v8.10.0-linux-x64.tar.gz -o /tmp/node-v0.8.10.tar.gz && \
+    tar -xzvf /tmp/node-v0.8.10.tar.gz -C /usr/local/lib/nodejs
+
+RUN ln -s /usr/local/lib/nodejs/node-v8.10.0-linux-x64/bin/node /usr/bin/node && \
+    ln -s /usr/local/lib/nodejs/node-v8.10.0-linux-x64/bin/npm /usr/bin/npm && \
+    ln -s /usr/local/lib/nodejs/node-v8.10.0-linux-x64/bin/npx /usr/bin/npx

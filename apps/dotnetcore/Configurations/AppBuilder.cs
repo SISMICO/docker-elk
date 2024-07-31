@@ -2,6 +2,7 @@ using dotnetcore.Services;
 using Elastic.Apm.SerilogEnricher;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Serilog.Templates;
 
 public class AppBuilder
 {
@@ -11,11 +12,14 @@ public class AppBuilder
     
     var logger = new LoggerConfiguration()
         .ReadFrom.Configuration(builder.Configuration)
+        .MinimumLevel.Information()
         .Enrich.FromLogContext()
         .Enrich.WithMachineName()
         .Enrich.WithElasticApmCorrelationInfo()
         .Enrich.WithEnvironmentName()
         .Enrich.WithAppVersion()
+        .WriteTo.Console(new RehagroLogFormatter())
+        .WriteTo.Http(requestUri: "http://localhost:8080", queueLimitBytes: null, textFormatter: new RehagroLogFormatter())
         .CreateLogger();
 
     builder.Host.UseSerilog(logger);
